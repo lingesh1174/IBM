@@ -1,0 +1,109 @@
+import pandas as pd
+import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
+from math import pi
+from sklearn.preprocessing import MinMaxScaler
+
+#loading dataset
+data = pd.read_csv("D:\ibm\mostrunsipl2016.csv")
+print(data.head())
+
+
+#piechart for top 10 run scorers
+df_batting = data.head(10)
+plt.figure(figsize=(8, 6))
+plt.pie(df_batting['Runs'], labels=df_batting['Player'], autopct='%1.1f%%', startangle=90,
+        colors=['gold', 'orange', 'lightblue', 'lightgreen', 'pink','red','yellow','bisque','darkblue','brown'])
+plt.title('Top 10 Run Scorers')
+plt.show()
+
+
+df_batting2 =data.head(15)
+#create a bubble chart with Runs and Strike Rate
+plt.figure(figsize=(12, 8))
+plt.scatter(x=df_batting2['Runs'], y=df_batting2['SR'], s=df_batting2['Mat'] * 10,
+            c=['red','blue','green','black','yellow','orange','pink','brown','skyblue','magenta','purple',
+               'cyan','bisque','gray','teal'],alpha=0.5)
+plt.title("Top 15 Players Performance in 2016 IPL: Runs vs Strike Rate")
+plt.xlabel("Total Runs")
+plt.ylabel("Strike Rate")
+plt.show()
+#create a bubble chart with Runs and Strike Rate for all players
+plt.figure(figsize=(12, 8))
+plt.scatter(x=data['Runs'], y=data['SR'],s=data['Mat'] * 10, c='purple' , alpha=0.8)
+plt.title("All Player Performance in 2016 IPL: Runs vs Strike Rate")
+plt.xlabel("Total Runs")
+plt.ylabel("Strike Rate")
+plt.show()
+
+
+Player_name = input('Enter the  player name :')
+shot_data = {
+    'Player': [Player_name] * 100,
+    'x': np.random.randint(0, 101, 100),  # x-coordinates
+    'y': np.random.randint(0, 101, 100)   # y-coordinates
+}
+df_shots = pd.DataFrame(shot_data)
+# Create a heatmap for shot distribution on a cricket field
+plt.figure(figsize=(10, 6))
+sns.kdeplot(data=df_shots, x='x', y='y', cmap='coolwarm', fill=True, thresh=0.05)
+plt.title(Player_name+' Shot Distribution Heatmap')
+plt.xlabel('Field Width')
+plt.ylabel('Field Length')
+plt.show()
+
+
+Player = input('Enter the  player name :')
+player_stats = data.loc[data['Player'] == Player]
+print(player_stats)
+# Select only the numerical columns
+numerical_columns = ['Runs', 'Avg', 'SR', '100', '50','4s','6s']
+# Normalize the data
+scaler = MinMaxScaler()
+normalized_stats = scaler.fit_transform(data[numerical_columns])
+# Extract normalized values for the chosen player
+player_normalized = normalized_stats[data['Player'] == Player][0]
+# Define the categories
+categories = numerical_columns
+# Number of variables
+num_vars = len(categories)
+# Compute angle for each axis
+angles = np.linspace(0, 2 * pi, num_vars, endpoint=False).tolist()
+# Complete the loop to create a closed radar chart
+angles += angles[:1]
+player_normalized = np.append(player_normalized, player_normalized[0])
+# Create the radar chart
+fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+ax.fill(angles, player_normalized, color='b', alpha=0.25)
+ax.plot(angles, player_normalized, color='b', linewidth=2, linestyle='solid')
+# Set the category labels at the correct angle
+ax.set_yticklabels([])
+ax.set_xticks(angles[:-1])
+ax.set_xticklabels(categories)
+plt.title('Radar Chart for '+Player)
+plt.show()
+
+
+#visualization : bar chart of top 10 scorers 50s and 100s
+plt.figure(figsize=(12,8))
+sns.barplot(x='50',y='Player',data=df_batting,color='blue',label='Half-enturies',orient='h')
+sns.barplot(x='100',y='Player',data=df_batting,color='orange',label='Centuries',orient='h')
+plt.title("Top 10 run scorers in IPL 2016")
+plt.xlabel("Count")
+plt.ylabel("Players")
+plt.show()
+
+
+df = data.head(25)
+# Create a line plot for the 4s and 6s
+plt.figure(figsize=(10, 6))
+sns.lineplot(x='Player', y='4s', data=df, label='Fours', marker='o', linestyle='-', color='blue')
+sns.lineplot(x='Player', y='6s', data=df, label='Sixes', marker='o', linestyle='-', color='orange')
+plt.title('Number of Fours and Sixes by top 25 Players in a Tournament')
+plt.xlabel('Player')
+plt.ylabel('Count')
+plt.legend()
+# Rotate x-axis labels for better visibility
+plt.xticks(rotation=45)
+plt.show()
